@@ -2,8 +2,6 @@
 # coding: utf-8
 
 # In[1]:
-
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -11,10 +9,6 @@ from pandas.plotting import scatter_matrix
 import math
 import random
 from pylab import *
-
-
-# In[2]:
-
 
 df = pd.read_csv("adult_preprocessed",nrows=3000) # read file.csv 
 
