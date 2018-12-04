@@ -1,7 +1,9 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[4]:
+
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -10,7 +12,11 @@ import math
 import random
 from pylab import *
 
-df = pd.read_csv("adult_preprocessed",nrows=3000) # read file.csv 
+
+# In[21]:
+
+
+df = pd.read_csv("adult_preprocessed",nrows=5000) # read file.csv 
 
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import MinMaxScaler
@@ -45,13 +51,7 @@ x= df.drop(['salary'],axis=1)
 y=df['salary']
 
 
-# In[39]:
-
-
-x
-
-
-# In[15]:
+# In[8]:
 
 
 # maka an order for feature importance
@@ -74,7 +74,7 @@ fea_im_seq = pd.DataFrame({'feature': x.columns, 'importance': fea_im_seq}).sort
 fea_im_seq
 
 
-# In[5]:
+# In[1]:
 
 
 # pearson correlation coefficient
@@ -89,21 +89,27 @@ def pearson_correlation(df):
     return df_corr
 
 
-# In[38]:
+# In[6]:
+
+
+pearson_correlation(x)
+
+
+# In[22]:
 
 
 fea_ac_array=[]
 fea_ac_matrix=[]
 split_size=0.3     
 
-for j in range(0,3000):
+for j in range(0,30):
     fea_ac_array=[]
     for i in range(0,x.shape[1]):
         if i==0:
-            fea_drop=fea_im_ave    #drop last features
+            fea_drop=fea_im_seq    #drop last features
             fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset   
         else:
-            fea_drop=fea_im_ave[:-i]    #drop last features
+            fea_drop=fea_im_seq[:-i]    #drop last features
             fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset
 
         X_train, X_test, y_train, y_test = train_test_split(fea_drop_train,y,test_size=split_size,random_state=22)
@@ -128,7 +134,7 @@ fea_ac_array
 fea_sum_array=[]
 for i in range(0,x.shape[1]):
     
-    fea_drop=fea_im_ave[:-i]    #drop last features
+    fea_drop=fea_im_seq[:-i]    #drop last features
     fea_sum_array.append(fea_drop.sum())
     
 fea_sum_array=pd.DataFrame(fea_sum_array)
@@ -138,7 +144,7 @@ fea_sum_array=fea_sum_array.iloc[:,1]
 print(fea_sum_array)
 
 
-# In[17]:
+# In[23]:
 
 
 plt.figure(figsize=(8, 5))
@@ -153,7 +159,7 @@ xlim(0.2, 1)
 plt.savefig("Accuracy VS Feature importance.jpg")
 
 
-# In[37]:
+# In[18]:
 
 
 # find best feature set I and adjusted feature set
