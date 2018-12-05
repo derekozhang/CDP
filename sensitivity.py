@@ -14,13 +14,13 @@ import random
 from pylab import *
 
 
-# In[2]:
+# In[32]:
 
 
-df = pd.read_csv("adult_preprocessed.csv",nrows=3000) # read file.csv 
+df = pd.read_csv("adult_preprocessed.csv",nrows=5000) # read file.csv 
 
 
-# In[3]:
+# In[33]:
 
 
 
@@ -57,18 +57,60 @@ x= df.drop(['salary'],axis=1)
 y=df['salary']
 
 
-# In[7]:
+# In[34]:
 
 
-#correlated degree matrix
+#correlated degree matrix for proposed scheme
+def pearson_correlation_array(df):
+    df_pc=df.T.corr()
+    df_pc=df_pc.replace(1,0)
+    df_pc=abs(df_pc)
+    df_pc=df_pc[df_pc>0.8]
+    df_pc[np.isnan(df_pc)]=0
+    df_pc_sum=df_pc.sum()/2
+    return (df_pc_sum)
+
+print(pearson_correlation_array(x))
+print(pearson_correlation_array(x_best_set_1))
+
+
+# In[35]:
+
+
+#correlated degree matrix for group DP
 df_pc=x.T.corr()
 df_pc=df_pc.replace(1,0)
 df_pc=abs(df_pc)
 df_pc=df_pc[df_pc>0.8]
 df_pc[np.isnan(df_pc)]=0
+df_pc_dummy=df_pc.mask(df_pc>0,1)
+df_pc_dummy_sum=df_pc_dummy.sum()/2
 
 
-# In[22]:
+# In[52]:
+
+
+# maka an order for feature importance
+from sklearn.ensemble import RandomForestClassifier
+from sklearn import model_selection
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+fea_im_seq=[] 
+
+for i in range(0,100):
+    model= RandomForestClassifier()      
+    model=model.fit(x,y)              #dont miss the later model.fit
+    feature_importances = np.zeros(x.shape[1])
+    feature_importances = model.feature_importances_
+    fea_im_seq.append(feature_importances)
+
+fea_im_seq=pd.DataFrame(fea_im_seq)
+fea_im_seq=fea_im_seq.mean() #feature importance average
+fea_im_seq = pd.DataFrame({'feature': x.columns, 'importance': fea_im_seq}).sort_values('importance', ascending = False)
+fea_im_seq
+
+
+# In[74]:
 
 
 # the begining accuracy for dataset x 
@@ -78,29 +120,41 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 acc_score_array=[]
 split_size=0.3
-for i in range(0,10):
+acc_array=[]
+for j in range(0,len(adjust_feature_set)):
+        
+    if j==0:
+        fea_drop=fea_im_seq
+        fea_drop_train=x.loc[:,fea_drop.T.iloc[0]] 
+    else:
+        fea_drop=fea_im_seq[:-l]    #drop last features
+        fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset
 
-    #Creation of Train and Test dataset
-    X_train, X_test, y_train, y_test = train_test_split(x,y,test_size=split_size,random_state=22)
+    for i in range(0,30):
 
-    #Creation of Train and validation dataset
-    X_train, X_val, y_train, y_val = train_test_split(X_train,y_train,test_size=0.2,random_state=5)
+        #Creation of Train and Test dataset
+        X_train, X_test, y_train, y_test = train_test_split( fea_drop_train,y,test_size=split_size,random_state=22)
 
-    model=RandomForestClassifier()
-    kfold = model_selection.KFold(n_splits=5,random_state=7)
-    #cv_result = model_selection.cross_val_score(model,X_train,y_train,cv=kfold,scoring='accuracy')
-    score=model.fit(X_train,y_train)
-    prediction = model.predict(X_val)
-    acc_score = accuracy_score(y_val,prediction)  
-    acc_score_array.append(acc_score)
+        #Creation of Train and validation dataset
+        X_train, X_val, y_train, y_val = train_test_split(X_train,y_train,test_size=0.2,random_state=5)
 
-acc_score=sum(acc_score_array)/len(acc_score_array)
-print(acc_score)
+        model=RandomForestClassifier()
+        kfold = model_selection.KFold(n_splits=5,random_state=7)
+        #cv_result = model_selection.cross_val_score(model,X_train,y_train,cv=kfold,scoring='accuracy')
+        score=model.fit(X_train,y_train)
+        prediction = model.predict(X_val)
+        acc_score = accuracy_score(y_val,prediction)  
+        acc_score_array.append(acc_score)
+
+    acc_score=sum(acc_score_array)/len(acc_score_array)
+    acc_array.append(acc_score)
+print(acc_array)
 
 
-# In[29]:
+# In[37]:
 
 
+#sensitivity of proposed scheme and corresbonding group scheme
 acc_score_array_del=[]
 for i in range(0,x.shape[0]):
     x_del=x.drop(i)
@@ -108,7 +162,7 @@ for i in range(0,x.shape[0]):
     acc_score_array=[]
     split_size=0.3
     
-    for j in range(0,10):
+    for j in range(0,1):
 
         #Creation of Train and Test dataset
         X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
@@ -127,13 +181,165 @@ for i in range(0,x.shape[0]):
     acc_score=sum(acc_score_array)/len(acc_score_array)
     acc_score_array_del.append(acc_score)
     
+acc_difference=acc_score_array_del-acc_score
+df_pc_sum=df_pc.sum()/2
+sensitivity=max(df_pc_sum*acc_difference)
+print(sensitivity)
+
+group_sensitivity=max(df_pc_dummy_sum*acc_difference)
+print(group_sensitivity)
+
+
+# In[38]:
+
+
+
 
 
 # In[39]:
 
 
+df_pc_sum
+
+
+# In[40]:
+
+
+
+
+
+# In[41]:
+
+
+print(group_sensitivity)
+
+
+# In[42]:
+
+
+best_feature_set_1=['fnlwgt', 'age', 'education-num', 'marital-status', 'hours-per-week', 'relationship', 'capital-gain', 'employment_type']
+
+
+# In[46]:
+
+
+x_best_set_1=x[best_feature_set_1]
+
+
+# In[48]:
+
+
+def pearson_correlation_array(df):
+    df_pc=df.T.corr()
+    df_pc=df_pc.replace(1,0)
+    df_pc=abs(df_pc)
+    df_pc=df_pc[df_pc>0.8]
+    df_pc[np.isnan(df_pc)]=0
+    df_pc_sum=df_pc.sum()/2
+    return (df_pc_sum)
+
+print(pearson_correlation_array(x))
+print(pearson_correlation_array(x_best_set_1))
+
+
+# In[77]:
+
+
+sensitivity_array=[]
+for l in range(0,len(adjust_feature_set)):
+    
+    if l==0:
+        fea_drop=fea_im_seq
+        fea_drop_train=x.loc[:,fea_drop.T.iloc[0]] 
+    else:
+        fea_drop=fea_im_seq[:-l]    #drop last features
+        fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset
+
+
+    acc_score_array_del=[]
+    for i in range(0,x_best_set_1.shape[0]):
+        x_del=fea_drop_train.drop(i)
+        y_del=y.drop(i)
+        acc_score_array=[]
+        split_size=0.3
+
+        for j in range(0,1):
+
+            #Creation of Train and Test dataset
+            X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
+
+            #Creation of Train and validation dataset
+            X_train, X_val, y_train, y_val = train_test_split(X_train,y_train,test_size=0.2,random_state=5)
+
+            model=RandomForestClassifier()
+            kfold = model_selection.KFold(n_splits=5,random_state=7)
+            #cv_result = model_selection.cross_val_score(model,X_train,y_train,cv=kfold,scoring='accuracy')
+            score=model.fit(X_train,y_train)
+            prediction = model.predict(X_val)
+            acc_score = accuracy_score(y_val,prediction)  
+            acc_score_array.append(acc_score)
+
+        acc_score=sum(acc_score_array)/len(acc_score_array)
+        acc_score_array_del.append(acc_score)
+    acc_difference=acc_score_array_del-acc_array[l]
+    sensitivity=max(pearson_correlation_array(fea_drop_train)*acc_difference)
+    sensitivity_array.append(sensitivity)
+print(sensitivity_array)
+
+
+# In[65]:
+
+
+sensitivity_array
+
+
+# In[76]:
+
+
+# the sensitivity of best feature set I (less features)
+
+acc_score_array_del=[]
+for i in range(0,x.shape[0]):
+    x_del=x_best_set_1.drop(i)
+    y_del=y.drop(i)
+    acc_score_array=[]
+    split_size=0.3
+    
+    for j in range(0,1):
+
+        #Creation of Train and Test dataset
+        X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
+
+        #Creation of Train and validation dataset
+        X_train, X_val, y_train, y_val = train_test_split(X_train,y_train,test_size=0.2,random_state=5)
+
+        model=RandomForestClassifier()
+        kfold = model_selection.KFold(n_splits=5,random_state=7)
+        #cv_result = model_selection.cross_val_score(model,X_train,y_train,cv=kfold,scoring='accuracy')
+        score=model.fit(X_train,y_train)
+        prediction = model.predict(X_val)
+        acc_score = accuracy_score(y_val,prediction)  
+        acc_score_array.append(acc_score)
+
+    acc_score=sum(acc_score_array)/len(acc_score_array)
+    acc_score_array_del.append(acc_score)
+
+
 acc_difference=acc_score_array_del-acc_score
-df_pc_sum=df_pc.sum()/2
-sensitivity=max(df_pc_sum*acc_difference)
+
+sensitivity=max(pearson_correlation_array(x_best_set_1)*acc_difference)
 print(sensitivity)
+
+
+# In[62]:
+
+
+adjust_feature_set=['capital-loss', 'race', 'country', 'sex']
+len(adjust_feature_set)
+
+
+# In[ ]:
+
+
+
 
