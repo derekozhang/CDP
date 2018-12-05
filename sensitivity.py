@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[1]:
+# In[81]:
 
 
 import pandas as pd
@@ -10,11 +10,16 @@ import matplotlib.pyplot as plt
 from pandas.plotting import scatter_matrix
 import math
 import random
-
 from pylab import *
 
+import sys
+import warnings
 
-# In[32]:
+if not sys.warnoptions:
+    warnings.simplefilter("ignore")
+
+
+# In[85]:
 
 
 df = pd.read_csv("adult_preprocessed.csv",nrows=5000) # read file.csv 
@@ -57,7 +62,15 @@ x= df.drop(['salary'],axis=1)
 y=df['salary']
 
 
-# In[34]:
+# In[79]:
+
+
+best_feature_set_1=['fnlwgt', 'age', 'education-num', 'marital-status', 'hours-per-week', 'relationship', 'capital-gain', 'employment_type']
+adjust_feature_set=['capital-loss', 'race', 'country', 'sex']
+x_best_set_1=x[best_feature_set_1]
+
+
+# In[84]:
 
 
 #correlated degree matrix for proposed scheme
@@ -70,8 +83,8 @@ def pearson_correlation_array(df):
     df_pc_sum=df_pc.sum()/2
     return (df_pc_sum)
 
-print(pearson_correlation_array(x))
-print(pearson_correlation_array(x_best_set_1))
+#print(pearson_correlation_array(x))
+#print(pearson_correlation_array(x_best_set_1))
 
 
 # In[35]:
@@ -127,7 +140,7 @@ for j in range(0,len(adjust_feature_set)):
         fea_drop=fea_im_seq
         fea_drop_train=x.loc[:,fea_drop.T.iloc[0]] 
     else:
-        fea_drop=fea_im_seq[:-l]    #drop last features
+        fea_drop=fea_im_seq[:-j]    #drop last features
         fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset
 
     for i in range(0,30):
@@ -151,7 +164,7 @@ for j in range(0,len(adjust_feature_set)):
 print(acc_array)
 
 
-# In[37]:
+# In[78]:
 
 
 #sensitivity of proposed scheme and corresbonding group scheme
@@ -162,7 +175,7 @@ for i in range(0,x.shape[0]):
     acc_score_array=[]
     split_size=0.3
     
-    for j in range(0,1):
+    for j in range(0,5):
 
         #Creation of Train and Test dataset
         X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
@@ -182,24 +195,12 @@ for i in range(0,x.shape[0]):
     acc_score_array_del.append(acc_score)
     
 acc_difference=acc_score_array_del-acc_score
-df_pc_sum=df_pc.sum()/2
-sensitivity=max(df_pc_sum*acc_difference)
+
+sensitivity=max(pearson_correlation_array(x)*acc_array[0])
 print(sensitivity)
 
-group_sensitivity=max(df_pc_dummy_sum*acc_difference)
+group_sensitivity=max(df_pc_dummy_sum*acc_array[0])
 print(group_sensitivity)
-
-
-# In[38]:
-
-
-
-
-
-# In[39]:
-
-
-df_pc_sum
 
 
 # In[40]:
@@ -208,51 +209,17 @@ df_pc_sum
 
 
 
-# In[41]:
-
-
-print(group_sensitivity)
-
-
-# In[42]:
-
-
-best_feature_set_1=['fnlwgt', 'age', 'education-num', 'marital-status', 'hours-per-week', 'relationship', 'capital-gain', 'employment_type']
-
-
-# In[46]:
-
-
-x_best_set_1=x[best_feature_set_1]
-
-
-# In[48]:
-
-
-def pearson_correlation_array(df):
-    df_pc=df.T.corr()
-    df_pc=df_pc.replace(1,0)
-    df_pc=abs(df_pc)
-    df_pc=df_pc[df_pc>0.8]
-    df_pc[np.isnan(df_pc)]=0
-    df_pc_sum=df_pc.sum()/2
-    return (df_pc_sum)
-
-print(pearson_correlation_array(x))
-print(pearson_correlation_array(x_best_set_1))
-
-
-# In[77]:
+# In[80]:
 
 
 sensitivity_array=[]
-for l in range(0,len(adjust_feature_set)):
+for k in range(0,len(adjust_feature_set)):
     
-    if l==0:
+    if k==0:
         fea_drop=fea_im_seq
         fea_drop_train=x.loc[:,fea_drop.T.iloc[0]] 
     else:
-        fea_drop=fea_im_seq[:-l]    #drop last features
+        fea_drop=fea_im_seq[:-k]    #drop last features
         fea_drop_train=x.loc[:,fea_drop.T.iloc[0]]  #training dataset
 
 
@@ -263,7 +230,7 @@ for l in range(0,len(adjust_feature_set)):
         acc_score_array=[]
         split_size=0.3
 
-        for j in range(0,1):
+        for j in range(0,5):
 
             #Creation of Train and Test dataset
             X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
@@ -331,11 +298,10 @@ sensitivity=max(pearson_correlation_array(x_best_set_1)*acc_difference)
 print(sensitivity)
 
 
-# In[62]:
+# In[ ]:
 
 
-adjust_feature_set=['capital-loss', 'race', 'country', 'sex']
-len(adjust_feature_set)
+
 
 
 # In[ ]:
