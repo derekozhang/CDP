@@ -70,7 +70,7 @@ adjust_feature_set=['capital-loss', 'race', 'country', 'sex']
 x_best_set_1=x[best_feature_set_1]
 
 
-# In[15]:
+# In[26]:
 
 
 #correlated degree matrix for proposed scheme
@@ -87,17 +87,26 @@ def pearson_correlation_array(df):
 #print(pearson_correlation_array(x_best_set_1))
 
 
-# In[16]:
+# In[24]:
 
 
 #correlated degree matrix for group DP
-df_pc=x.T.corr()
-df_pc=df_pc.replace(1,0)
-df_pc=abs(df_pc)
-df_pc=df_pc[df_pc>0.8]
-df_pc[np.isnan(df_pc)]=0
-df_pc_dummy=df_pc.mask(df_pc>0,1)
-df_pc_dummy_sum=df_pc_dummy.sum()/2
+def group_correlation_array(df):
+    df_pc=x.T.corr()
+    df_pc=df_pc.replace(1,0)
+    df_pc=abs(df_pc)
+    df_pc=df_pc[df_pc>0.8]
+    df_pc[np.isnan(df_pc)]=0
+    df_pc_dummy=df_pc.mask(df_pc>0,1)
+    df_pc_dummy_sum=df_pc_dummy.sum()/2
+    return (df_pc_dummy_sum)
+
+
+# In[27]:
+
+
+#print(group_correlation_array(x))
+#print(group_correlation_array(x_best_set_1))
 
 
 # In[8]:
@@ -219,6 +228,7 @@ print(group_sensitivity)
 
 
 sensitivity_array=[]
+group_sensitivity_array=[]
 for k in range(0,len(adjust_feature_set)):
     
     if k==0:
@@ -254,10 +264,14 @@ for k in range(0,len(adjust_feature_set)):
 
         acc_score=sum(acc_score_array)/len(acc_score_array)
         acc_score_array_del.append(acc_score)
-    acc_difference=acc_score_array_del-acc_array[l]
+    acc_difference=acc_score_array_del-acc_array[k]
     sensitivity=max(pearson_correlation_array(fea_drop_train)*acc_difference)
     sensitivity_array.append(sensitivity)
+    
+    group_sensitivity=max(group_correlation_array(fea_drop_train)*acc_difference)
+    group_sensitivity_array.append(group_sensitivity)
 print(sensitivity_array)
+print(group_sensitivity)
 
 
 # In[65]:
