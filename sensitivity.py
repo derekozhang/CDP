@@ -1,7 +1,7 @@
 
 # coding: utf-8
 
-# In[81]:
+# In[11]:
 
 
 import pandas as pd
@@ -19,13 +19,13 @@ if not sys.warnoptions:
     warnings.simplefilter("ignore")
 
 
-# In[85]:
+# In[12]:
 
 
 df = pd.read_csv("adult_preprocessed.csv",nrows=5000) # read file.csv 
 
 
-# In[33]:
+# In[13]:
 
 
 
@@ -62,7 +62,7 @@ x= df.drop(['salary'],axis=1)
 y=df['salary']
 
 
-# In[79]:
+# In[14]:
 
 
 best_feature_set_1=['fnlwgt', 'age', 'education-num', 'marital-status', 'hours-per-week', 'relationship', 'capital-gain', 'employment_type']
@@ -70,7 +70,7 @@ adjust_feature_set=['capital-loss', 'race', 'country', 'sex']
 x_best_set_1=x[best_feature_set_1]
 
 
-# In[84]:
+# In[15]:
 
 
 #correlated degree matrix for proposed scheme
@@ -87,7 +87,7 @@ def pearson_correlation_array(df):
 #print(pearson_correlation_array(x_best_set_1))
 
 
-# In[35]:
+# In[16]:
 
 
 #correlated degree matrix for group DP
@@ -100,7 +100,7 @@ df_pc_dummy=df_pc.mask(df_pc>0,1)
 df_pc_dummy_sum=df_pc_dummy.sum()/2
 
 
-# In[52]:
+# In[8]:
 
 
 # maka an order for feature importance
@@ -123,7 +123,7 @@ fea_im_seq = pd.DataFrame({'feature': x.columns, 'importance': fea_im_seq}).sort
 fea_im_seq
 
 
-# In[74]:
+# In[17]:
 
 
 # the begining accuracy for dataset x 
@@ -164,7 +164,13 @@ for j in range(0,len(adjust_feature_set)):
 print(acc_array)
 
 
-# In[78]:
+# In[19]:
+
+
+x.shape
+
+
+# In[22]:
 
 
 #sensitivity of proposed scheme and corresbonding group scheme
@@ -175,7 +181,7 @@ for i in range(0,x.shape[0]):
     acc_score_array=[]
     split_size=0.3
     
-    for j in range(0,5):
+    for j in range(0,1):
 
         #Creation of Train and Test dataset
         X_train, X_test, y_train, y_test = train_test_split(x_del,y_del,test_size=split_size,random_state=22)
@@ -194,12 +200,12 @@ for i in range(0,x.shape[0]):
     acc_score=sum(acc_score_array)/len(acc_score_array)
     acc_score_array_del.append(acc_score)
     
-acc_difference=acc_score_array_del-acc_score
+acc_difference=acc_score_array_del-acc_array[0]
 
-sensitivity=max(pearson_correlation_array(x)*acc_array[0])
+sensitivity=max(pearson_correlation_array(x)*acc_difference)
 print(sensitivity)
 
-group_sensitivity=max(df_pc_dummy_sum*acc_array[0])
+group_sensitivity=max(df_pc_dummy_sum*acc_difference)
 print(group_sensitivity)
 
 
