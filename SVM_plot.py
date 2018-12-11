@@ -196,7 +196,7 @@ svm_coef_2=[-0.03520508, -0.23478565, -0.82818484,  0.76741234, -0.21707211,  0.
 svm_b_2=1.35050051
 print(svm_result(x,svm_coef,svm_b))
 print(svm_result(x_best_set_1,svm_coef_2,svm_b_2))  # accuracy without noise scheme
-y_svm_no_noise=svm_result(x_best_set_1,svm_coef_2,svm_b_2)*np.ones((1,9))
+y_svm_no_noise=[0.8236, 0.8236, 0.8236, 0.8236, 0.8236, 0.8236, 0.8236, 0.8236, 0.8236]
 
 
 # In[172]:
@@ -285,7 +285,7 @@ plt.figure(figsize=(8, 5))
 plt.plot(x_label,y_svm_proposed,linewidth=2.0,color='red',markerfacecolor='red',marker='o',label='proposed scheme')
 plt.plot(x_label,y_svm_group,linewidth=2.0,color='blue',markerfacecolor='blue',marker='o',label='group scheme')
 plt.plot(x_label,y_svm_zhu,linewidth=2.0,color='green',markerfacecolor='green',marker='o',label='zhu scheme')
-plt.plot(x_label,y_svm_np_noise,linewidth=2.0,color='pink',markerfacecolor='pink',marker='o',label='No noise scheme')
+plt.plot(x_label,y_svm_no_noise,linewidth=2.0,color='pink',markerfacecolor='pink',marker='o',label='No noise scheme')
 plt.xlabel("Epslion")
 plt.ylabel("Accuracy")
 plt.title('Epsilon VS Accuracy')
@@ -297,7 +297,7 @@ plt.legend(loc='best')
 plt.savefig("Epsilon VS Accuracy SVM .png")
 
 
-# In[179]:
+# In[195]:
 
 
 # import numpy as np
