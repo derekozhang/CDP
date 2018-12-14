@@ -127,6 +127,21 @@ sensitivity_array=[0.7260089682766394, 0.7696626730025701, 1.0774842802117621, 1
 group_sensitivity_array=[0.7683730158730153, 0.817460317460319, 1.1395767195767217, 1.2700198412698354]
 
 
+# In[29]:
+
+
+X_train, X_test, y_train, y_test = train_test_split(x_best_set_1,y,test_size=split_size,random_state=22)
+X_train, X_val, y_train, y_val = train_test_split(X_train,y_train,test_size=0.2,random_state=5)
+
+model=SVC(kernel = 'linear')
+
+kfold = model_selection.KFold(n_splits=5,random_state=7)
+score=model.fit(X_train,y_train)
+prediction = model.predict(X_val)
+acc_score_LR = accuracy_score(y_val,prediction)
+print(acc_score_LR)
+
+
 # In[14]:
 
 
@@ -190,7 +205,7 @@ def plot_svm_noise_result(df,w,b,sen):
     return (array)
 
 
-# In[ ]:
+# In[24]:
 
 
 y_svm_proposed=plot_svm_noise_result(x,svm_coefficient(x)[0][0],svm_coefficient(x)[1],sensitivity_array[0])
@@ -198,10 +213,16 @@ y_svm_group=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][
 y_svm_zhu=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0],LR_coefficient(x_best_set_1)[1],group_sensitivity_array[3])
 
 
-# In[ ]:
+# In[30]:
 
 
-x_label=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9 1]
+y_svm_no_noise=[0.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,]
+
+
+# In[31]:
+
+
+x_label=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9, 1]
 plt.figure(figsize=(8, 5))
 plt.plot(x_label,y_svm_proposed,linewidth=2.0,color='red',markerfacecolor='red',marker='o',label='Proposed scheme')
 plt.plot(x_label,y_svm_group,linewidth=2.0,color='blue',markerfacecolor='blue',marker='o',label='Group scheme')
