@@ -141,7 +141,7 @@ group_sensitivity_array=[0.7683730158730153, 0.817460317460319, 1.13957671957672
 
 def LR_noise_result(df,w,b,sen):
     array=[]
-    for i in range(0,100):
+    for i in range(0,300):
         loc=0
         scale=sen
         noise_1= np.random.laplace(loc, scale, df.shape[1])
