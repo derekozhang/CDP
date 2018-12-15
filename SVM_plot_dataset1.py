@@ -138,8 +138,8 @@ model=SVC(kernel = 'linear')
 kfold = model_selection.KFold(n_splits=5,random_state=7)
 score=model.fit(X_train,y_train)
 prediction = model.predict(X_val)
-acc_score_LR = accuracy_score(y_val,prediction)
-print(acc_score_LR)
+acc_score_ svm= accuracy_score(y_val,prediction)
+print(acc_score_svm)
 
 
 # In[14]:
@@ -149,7 +149,7 @@ print(acc_score_LR)
 
 def svm_noise_result(df,w,b,sen):
     array=[]
-    for i in range(0,100):
+    for i in range(0,200):
         loc=0
         scale=sen
         noise_1= np.random.laplace(loc, scale, df.shape[1])
@@ -209,8 +209,8 @@ def plot_svm_noise_result(df,w,b,sen):
 
 
 y_svm_proposed=plot_svm_noise_result(x,svm_coefficient(x)[0][0],svm_coefficient(x)[1],sensitivity_array[0])
-y_svm_group=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0],svm_coefficient(x_best_set_1)[1],sensitivity_array[3])
-y_svm_zhu=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0],LR_coefficient(x_best_set_1)[1],group_sensitivity_array[3])
+y_svm_zhu=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0],svm_coefficient(x_best_set_1)[1],sensitivity_array[3])
+y_svm_group=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0],svm_coefficient(x_best_set_1)[1],group_sensitivity_array[3])
 
 
 # In[30]:
@@ -219,20 +219,22 @@ y_svm_zhu=plot_svm_noise_result(x_best_set_1,svm_coefficient(x_best_set_1)[0][0]
 y_svm_no_noise=[0.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,.8261904761904761,0.8261904761904761,]
 
 
-# In[31]:
+# In[42]:
 
 
 x_label=[0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9, 1]
-plt.figure(figsize=(8, 5))
-plt.plot(x_label,y_svm_proposed,linewidth=2.0,color='red',markerfacecolor='red',marker='o',label='Proposed scheme')
-plt.plot(x_label,y_svm_group,linewidth=2.0,color='blue',markerfacecolor='blue',marker='o',label='Group scheme')
-plt.plot(x_label,y_svm_zhu,linewidth=2.0,color='green',markerfacecolor='green',marker='o',label='Zhu scheme')
+plt.figure(figsize=(8, 6))
 plt.plot(x_label,y_svm_no_noise,linewidth=2.0,color='magenta',markerfacecolor='magenta',marker='o',label='Non private scheme')
-plt.xlabel("Epslion")
-plt.ylabel("Accuracy")
+plt.plot(x_label,y_svm_proposed,linewidth=2.0,color='red',markerfacecolor='red',marker='o',label='Proposed scheme')
+
+plt.plot(x_label,y_svm_zhu,linewidth=2.0,color='blue',markerfacecolor='blue',marker='o',label='Zhu scheme')
+plt.plot(x_label,y_svm_group,linewidth=2.0,color='green',markerfacecolor='green',marker='o',label='Group scheme')
+plt.xlabel("Epslion",fontsize=20)
+plt.ylabel("Accuracy",fontsize=20)
 #plt.title('Epsilon VS Accuracy')
-plt.legend(loc='best')
+plt.legend(loc='best',prop={'size':15})
 plt.grid(True)
+plt.tick_params(labelsize=20)
 #xlim(0.2, 1)
 #ylim(0,1)
 #plt.show()
